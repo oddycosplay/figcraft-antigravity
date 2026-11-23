@@ -1,11 +1,13 @@
 ---
 name: figcraft-swarm-build
-description: Orchestrate multi-agent BA, PM, UX, UI, copywriting, parallel UI construction, and QA review on a live FigCraft desktop canvas using Pattern B (Partitioned Multi-Writer) over the figcraft_figcraft-live MCP server. Use when building multi-section pages, dashboards, or multi-screen flows in FigCraft Live with a multi-agent team.
+description: Orchestrate multi-agent BA, PM, UX, UI, copywriting, parallel UI construction, and QA review on a live FigCraft desktop canvas using Hybrid Pattern B (Partitioned Multi-Writer Swarm) over the figcraft_figcraft-live MCP server. Use when building multi-section pages, dashboards, or multi-screen flows in FigCraft Live with a multi-agent team.
 ---
 
-# FigCraft Swarm Build (Pola B — Partitioned Multi-Writer)
+# FigCraft Swarm Build (Hybrid Pola B — Partitioned Multi-Writer)
 
 SOP orkestrasi multi-agent end-to-end untuk membangun desain UI secara paralel di atas **Live Server FigCraft** (`figcraft --control 7979`) melalui MCP `figcraft_figcraft-live` tanpa konflik *selection* atau *race condition*.
+
+> **Arsitektur Hybrid Swarm Antigravity:** Di Antigravity Swarm Board, worker tidak selalu mewarisi `call_mcp_tool` untuk lazy MCP server — akses eksekusi MCP `figcraft_figcraft-live` berada pada **`@coordinator`**. Karena itu, worker `figcraft-builder` bekerja **paralel** menyusun payload JSON `batch` yang valid terhadap schema MCP untuk partisi masing-masing, lalu `@coordinator` mengeksekusi setiap `batch` secara atomik ke kanvas live.
 
 ## Prasyarat
 
@@ -18,9 +20,9 @@ SOP orkestrasi multi-agent end-to-end untuk membangun desain UI secara paralel d
 
 ---
 
-## Fase 0: Verifikasi Koneksi Live Canvas
+## Fase 0: Verifikasi Koneksi Live Canvas (Coordinator)
 
-1. Panggil `inspect_document` (`{ "outline": true }`) pada `figcraft_figcraft-live`.
+1. Panggil `inspect_document` (`{ "outline": true, "depth": 2 }`) pada `figcraft_figcraft-live`.
 2. Catat `document` ID, `currentPage`, dan struktur layer yang sudah ada agar desain baru konsisten dan tidak menimpa karya sebelumnya.
 
 ---
@@ -43,31 +45,26 @@ Jalankan agent spesialis (seluruhnya **read-only** terhadap kanvas) sesuai kompl
 Coordinator adalah **satu-satunya** pihak yang menyiapkan kerangka partisi sebelum *builder* dijalankan paralel:
 
 1. Buat (atau identifikasi) root container frame (mis. `Desktop 1440px` dengan auto-layout vertikal) atau halaman terpisah.
-2. Buat frame kosong untuk setiap partisi/*section* yang akan dikerjakan paralel (mis. `Section/Navbar`, `Section/Hero`, `Section/Features`, `Section/Footer`) dalam satu `batch`.
-3. Panggil `inspect_document` (`{ "outline": true }`) untuk mengambil **numeric `id` eksak** setiap frame partisi.
+2. Buat frame kosong untuk setiap partisi/*section* yang akan dikerjakan paralel (mis. `Section/Navbar`, `Section/Hero`, `Section/Features`, `Section/Footer`) dalam satu `batch` dengan `"select": false`.
+3. Catat **numeric `id` eksak** setiap frame partisi dari hasil `batch` atau `inspect_document`.
 
 ---
 
-## Fase 3: Eksekusi Paralel dengan `figcraft-builder`
+## Fase 3: Eksekusi Paralel Hybrid dengan `figcraft-builder`
 
-Jalankan worker `figcraft-builder` secara paralel — melalui **`swarm`** (`workspace: "inherit"`) atau **`invoke_subagent`** (`TypeName: "figcraft-builder"`) — satu worker per partisi `parentId`.
-
-Setiap brief worker **wajib** memuat:
-- `document` ID dan `parentId` eksklusif miliknya.
-- Spesifikasi BA/PM/UX, Copy final, dan Design Tokens dari Fase 1 khusus untuk *section* tersebut.
-- Pengingat kontrak Pola B:
-  - Hanya menulis di dalam `parentId` miliknya.
-  - Wajib pakai `ids` eksplisit (dilarang mengandalkan `selection`).
-  - Gunakan `batch` untuk mutasi.
-  - Dilarang memanggil `undo` / `redo` global.
-  - Verifikasi mandiri dengan `get_node` pada `parentId` miliknya dan `screenshot` node spesifik sebelum melapor selesai.
+1. Spawn worker `figcraft-builder` secara paralel melalui **`swarm`** (`workspace: "inherit"`), satu worker per partisi `parentId`.
+2. Setiap brief worker **wajib** memuat:
+   - `document` ID dan `parentId` eksklusif miliknya.
+   - Spesifikasi BA/PM/UX, Copy final, dan Design Tokens dari Fase 1 khusus untuk *section* tersebut.
+   - Instruksi **Hybrid Swarm**: langsung susun payload JSON `batch` lengkap (`document`, `label`, `onError: "abort"`, `commands` dengan `"select": false` dan `$ref` internal) berdasarkan schema `batch.json` & `create_node.json`, lalu posting ke `@coordinator` (atau eksekusi langsung bila `call_mcp_tool` tersedia di worker).
+3. Begitu worker memposting payload JSON ke Swarm Board, **`@coordinator`** segera mengeksekusi setiap `batch` secara atomik ke `figcraft_figcraft-live` (tanpa konflik *selection* karena semua memakai `parent` ID terpisah dan `select: false`).
 
 ---
 
 ## Fase 4: Audit QA & Finalisasi
 
-Setelah seluruh `figcraft-builder` melapor selesai:
+Setelah seluruh partisi tereksekusi di kanvas live:
 
-1. Jalankan **`figcraft-qa`** (*read-only*) untuk mengaudit seluruh halaman menggunakan `inspect_document`, `get_node`, dan `screenshot` terhadap aturan bisnis (`figcraft-ba`), *acceptance criteria* (`figcraft-pm`), struktur UX, kesesuaian copy, dan konsistensi token UI.
-2. Jika `figcraft-qa` melaporkan temuan `Critical` / `Major`, delegasikan perbaikan berdasarkan `nodeId` & `parentId` spesifik ke `figcraft-builder` terkait (atau coordinator untuk penyesuaian lintas-section) dengan `ids` eksplisit, lalu verifikasi ulang.
-3. Setelah status QA `PASS`, simpan dokumen (`save_file`) bila diminta pengguna.
+1. Coordinator mengambil data `inspect_document` / `get_node` dan `screenshot` (per section dan root container) lalu mengaudit — atau menyerahkan ke **`figcraft-qa`** (*read-only*) — terhadap aturan bisnis (`figcraft-ba`), *acceptance criteria* (`figcraft-pm`), struktur UX, kesesuaian copy, dan konsistensi token UI.
+2. Jika ditemukan isu `Critical` / `Major`, perbaiki berdasarkan `nodeId` & `parentId` spesifik menggunakan `ids` eksplisit, lalu verifikasi ulang dengan `screenshot`.
+3. Setelah status QA `PASS`, hentikan (*kill*) worker swarm yang sudah selesai dan simpan dokumen (`save_file`) bila diminta pengguna.
