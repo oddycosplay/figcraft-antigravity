@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="title desc">
+  <title id="title">Alur kerja FigCraft Swarm</title>
+  <desc id="desc">Diagram alur dari brief hingga desain FigCraft diperiksa oleh QA.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101828"/><stop offset="1" stop-color="#1d2939"/></linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#7f56d9"/><stop offset="1" stop-color="#6172f3"/></linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#98a2b3"/></marker>
+    <style>
+      .label{font:600 17px Inter,Arial,sans-serif;fill:#f9fafb}.small{font:14px Inter,Arial,sans-serif;fill:#d0d5dd}.caption{font:600 13px Inter,Arial,sans-serif;fill:#b9a6ff;letter-spacing:1px}.line{stroke:#98a2b3;stroke-width:2;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1200" height="380" rx="24" fill="url(#bg)"/>
+  <text x="56" y="58" class="caption">FIGCRAFT SWARM · ALUR KERJA</text>
+  <text x="56" y="92" class="small">Dari kebutuhan produk menjadi desain yang dibangun dan ditinjau secara terstruktur.</text>
+  <g transform="translate(56 150)">
+    <rect width="188" height="136" rx="16" fill="#344054" stroke="#475467"/>
+    <text x="20" y="36" class="caption">01 · RENCANAKAN</text><text x="20" y="70" class="label">BA → PM</text><text x="20" y="98" class="small">Tujuan, ruang lingkup,</text><text x="20" y="119" class="small">dan kriteria penerimaan</text>
+  </g>
+  <path d="M252 218h42" class="line"/>
+  <g transform="translate(308 150)">
+    <rect width="188" height="136" rx="16" fill="#344054" stroke="#475467"/>
+    <text x="20" y="36" class="caption">02 · RANCANG</text><text x="20" y="70" class="label">UX + Copy + UI</text><text x="20" y="98" class="small">Alur, konten, dan</text><text x="20" y="119" class="small">design tokens</text>
+  </g>
+  <path d="M504 218h42" class="line"/>
+  <g transform="translate(560 150)">
+    <rect width="188" height="136" rx="16" fill="#344054" stroke="#475467"/>
+    <text x="20" y="36" class="caption">03 · PARTISI</text><text x="20" y="70" class="label">Coordinator</text><text x="20" y="98" class="small">Siapkan section dan</text><text x="20" y="119" class="small">parent ID yang terpisah</text>
+  </g>
+  <path d="M756 218h42" class="line"/>
+  <g transform="translate(812 150)">
+    <rect width="160" height="136" rx="16" fill="url(#accent)"/>
+    <text x="18" y="36" class="caption" fill="#f4ebff">04 · BANGUN</text><text x="18" y="70" class="label">Builders</text><text x="18" y="98" class="small">Kerjakan section</text><text x="18" y="119" class="small">secara paralel</text>
+  </g>
+  <path d="M980 218h42" class="line"/>
+  <g transform="translate(1036 150)">
+    <rect width="120" height="136" rx="16" fill="#344054" stroke="#475467"/>
+    <text x="16" y="36" class="caption">05 · QA</text><text x="16" y="70" class="label">Review</text><text x="16" y="98" class="small">Audit lalu</text><text x="16" y="119" class="small">finalisasi</text>
+  </g>
+</svg>
