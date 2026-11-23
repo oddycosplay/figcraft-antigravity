@@ -1,0 +1,11 @@
+{
+  "name": "figcraft",
+  "displayName": "FigCraft",
+  "version": "0.4.0",
+  "description": "Integrasi MCP Server FigCraft mode Live Canvas (--attach) dengan tim multi-agent Pola B (BA, PM, UX Designer, UI Designer, Copywriter, parallel figcraft-builder, dan QA).",
+  "suggestedPrompts": [
+    "Periksa status koneksi dan struktur layer dokumen aktif di kanvas FigCraft",
+    "Bangun halaman multi-section secara paralel di FigCraft Live menggunakan figcraft-swarm-build",
+    "Jalankan audit visual dan layout pada dokumen aktif FigCraft dengan figcraft-qa"
+  ]
+}
