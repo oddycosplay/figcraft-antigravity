@@ -1,4 +1,4 @@
-# FigCraft ANtigravity Plugin
+# FigCraft Antigravity Plugin
 
 Plugin lokal untuk menghubungkan Antigravity ke aplikasi desktop **FigCraft** melalui MCP Server dalam mode **Live Canvas (`--attach`)**, menggunakan arsitektur **Product Manager Coordinator + 5 Specialist Sub-Agents** (*Hybrid Pola B*).
 
